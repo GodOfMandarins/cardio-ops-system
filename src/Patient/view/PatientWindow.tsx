@@ -1,49 +1,50 @@
 import Link from "next/link";
 
-const doctorSections = [
+const patientCards = [
   {
-    title: "Šiandienos tvarkaraštis",
+    title: "Vizito informacija",
     description:
-      "Vieta vizitų laikams, operacijų pasiruošimui ir operacinių priskyrimui.",
+      "Ateityje cia bus rodoma vizito data, priskirtas gydytojas ir atvykimo instrukcijos.",
   },
   {
-    title: "Pacientų eile",
+    title: "Medicinine suvestine",
     description:
-      "",
+      "Paruosta vieta diagnozes santraukai, tyrimu rezultatams ir israsymo pastaboms.",
   },
   {
-    title: "Klinikines pastabos",
+    title: "Registracijos busena",
     description:
-      "Paruošta vieta apžiūrų suvestinėms, sveikimo pastaboms ir gydymo atnaujinimams.",
+      "Veliau cia bus galima matyti, ar pateiktos formos laukia perziuros, yra patvirtintos ar atnaujintos.",
   },
 ];
 
-const navigation = [
+const routes = [
   { href: "/", label: "Pradinis" },
   { href: "/admin", label: "Administratorius" },
-  { href: "/patient", label: "Pacientas" },
-  { href: "/login", label: "Prisijungimas" },
+  { href: "/employee", label: "Darbuotojas" },
+  { href: "/user/login", label: "Prisijungimas" },
 ];
 
-export default function DoctorPage() {
+export default function PatientWindow() {
   return (
     <main className="mx-auto min-h-screen max-w-7xl px-6 py-8 sm:px-10 lg:px-16">
       <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold tracking-[0.2em] text-accent uppercase">
-              Gydytojo posistemė
+              Paciento posisteme
             </p>
             <h1 className="display-font mt-3 text-4xl font-semibold sm:text-5xl">
-              Gydytojo darbo aplinkos peržiūra
+              Paciento portalo perziura
             </h1>
             <p className="mt-4 text-base leading-7 text-foreground/72 sm:text-lg">
-                Paruoštos sekcijos būsimiems gydytojo įrankiams.
+              Sis marsrutas atvertas testavimui be autentifikacijos ir yra
+              paruostas plestis i pilna pacientui skirta aplinka.
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-4">
-            {navigation.map((item) => (
+            {routes.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -56,14 +57,14 @@ export default function DoctorPage() {
         </div>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {doctorSections.map((section) => (
+          {patientCards.map((card) => (
             <article
-              key={section.title}
+              key={card.title}
               className="rounded-[1.5rem] border border-border-soft bg-white/80 p-5"
             >
-              <h2 className="text-xl font-semibold">{section.title}</h2>
+              <h2 className="text-xl font-semibold">{card.title}</h2>
               <p className="mt-3 text-sm leading-6 text-foreground/68">
-                {section.description}
+                {card.description}
               </p>
             </article>
           ))}

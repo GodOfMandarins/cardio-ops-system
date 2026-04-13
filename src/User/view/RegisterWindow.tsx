@@ -2,11 +2,11 @@ import Link from "next/link";
 
 const testRoutes = [
   { href: "/admin", label: "Admin" },
-  { href: "/doctor", label: "Doctor" },
+  { href: "/employee", label: "Employee" },
   { href: "/patient", label: "Patient" },
 ];
 
-export default function RegisterPage() {
+export default function RegisterWindow() {
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl items-center px-6 py-10 sm:px-10 lg:px-16">
       <section className="grid w-full gap-8 lg:grid-cols-[1.02fr_0.98fr]">
@@ -87,7 +87,7 @@ export default function RegisterPage() {
             <div className="mt-8 text-sm text-foreground/65">
               Jau turite paskyra?{" "}
               <Link
-                href="/login"
+                href="/user/login"
                 className="font-semibold text-accent hover:text-accent-strong"
               >
                 Prisijunkite

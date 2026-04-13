@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-manrope: "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-fraunces: Georgia, "Times New Roman", serif;
   --background: #f4f8f7;
   --foreground: #15333b;
   --surface: rgba(255, 255, 255, 0.76);
