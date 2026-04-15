@@ -24,7 +24,7 @@ const subsystemLinks = [
   { href: "/", label: "Pradinis" },
   { href: "/employee", label: "Darbuotojas" },
   { href: "/patient", label: "Pacientas" },
-  { href: "/user/login", label: "Prisijungimas" },
+  { href: "/login", label: "Prisijungimas" },
 ];
 
 function renderView(activeView: AdminView) {

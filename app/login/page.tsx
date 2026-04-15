@@ -6,7 +6,7 @@ const directAccessLinks = [
   { href: "/patient", label: "Open Patient" },
 ];
 
-export default function LoginWindow() {
+export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl items-center px-6 py-10 sm:px-10 lg:px-16">
       <section className="grid w-full gap-8 lg:grid-cols-[0.95fr_1.05fr]">
@@ -89,7 +89,7 @@ export default function LoginWindow() {
             <Link href="/" className="font-medium hover:text-accent">
               Grizti i pradzia
             </Link>
-            <Link href="/user/register" className="font-medium hover:text-accent">
+            <Link href="/register" className="font-medium hover:text-accent">
               Nauja registracija
             </Link>
           </div>

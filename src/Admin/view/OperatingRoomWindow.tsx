@@ -41,7 +41,7 @@ export default function OperatingRoomWindow() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/operating-rooms", {
+      const response = await fetch("/api/admin/OperatingRoomWindow", {
         cache: "no-store",
       });
       const payload = (await response.json()) as {
@@ -91,7 +91,7 @@ export default function OperatingRoomWindow() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/operating-rooms", {
+      const response = await fetch("/api/admin/OperatingRoomWindow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

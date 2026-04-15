@@ -22,7 +22,7 @@ const routes = [
   { href: "/", label: "Pradinis" },
   { href: "/admin", label: "Administratorius" },
   { href: "/employee", label: "Darbuotojas" },
-  { href: "/user/login", label: "Prisijungimas" },
+  { href: "/login", label: "Prisijungimas" },
 ];
 
 export default function PatientWindow() {

@@ -21,7 +21,7 @@ const navigation = [
   { href: "/", label: "Pradinis" },
   { href: "/admin", label: "Administratorius" },
   { href: "/patient", label: "Pacientas" },
-  { href: "/user/login", label: "Prisijungimas" },
+  { href: "/login", label: "Prisijungimas" },
 ];
 
 export default function EmployeeWindow() {
