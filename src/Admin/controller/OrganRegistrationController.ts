@@ -8,11 +8,33 @@ import { fetchOrgans } from "@/src/Shared/repositories/AdminRepository";
 const ALLOWED_TYPES = new Set<OrganFormData["tipas"]>(["sirdis"]);
 const ALLOWED_BLOOD_TYPES = new Set<OrganFormData["kraujoGrupe"]>(["0", "A", "B", "AB"]);
 
-export async function initiateOrganRegistrationWindowOpening() {
-  return requestOrganRegistrationForm();
+export interface OrganRegistrationWindowOpening {
+  showOrganRegistrationWindow: true;
 }
 
-export async function requestOrganRegistrationForm() {
+export interface OrganRegistrationSubmitResult {
+  organ: OrganListItem;
+  showNewOrganFillDialog: true;
+}
+
+export function initiateOrganRegistrationWindowOpening(): OrganRegistrationWindowOpening {
+  return showOrganRegistrationWindow();
+}
+
+export function showOrganRegistrationWindow(): OrganRegistrationWindowOpening {
+  return { showOrganRegistrationWindow: true };
+}
+
+export function requestOrganRegistrationForm(): OrganFormData {
+  return {
+    tipas: "sirdis",
+    kraujoGrupe: "0",
+    gavimoData: new Date().toISOString().split("T")[0],
+    donoroAmzius: 0,
+  };
+}
+
+export async function loadOrgansList(): Promise<OrganListItem[]> {
   return fetchOrgans();
 }
 
@@ -49,13 +71,15 @@ export async function saveOrganData(data: OrganFormData): Promise<OrganListItem>
   return modelSaveOrganData(data);
 }
 
-export function provideNewOrganFillDialog(organ: OrganListItem) {
-  return { organ, showNewOrganFillDialog: true };
-}
-
-export async function submitOrganData(payload: unknown) {
+export async function submitOrganData(
+  payload: unknown
+): Promise<OrganRegistrationSubmitResult> {
   const formData = (payload ?? {}) as OrganFormData;
   validateData(formData);
   const organ = await saveOrganData(formData);
-  return provideNewOrganFillDialog(organ);
+
+  return {
+    organ,
+    showNewOrganFillDialog: true,
+  };
 }

@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.json({ success: true, data: employees });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Nepavyko gauti darbuotoku.";
+      error instanceof Error ? error.message : "Nepavyko gauti darbuotoju.";
 
     return NextResponse.json({ success: false, message }, { status: 500 });
   }

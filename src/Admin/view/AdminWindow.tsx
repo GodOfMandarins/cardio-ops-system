@@ -8,6 +8,16 @@ import OrganRegistrationWindow from "@/src/Admin/view/OrganRegistrationWindow";
 
 type AdminView = "overview" | "employees" | "operatingRooms" | "organRegistration";
 
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
+interface OrganRegistrationWindowOpening {
+  showOrganRegistrationWindow: true;
+}
+
 const quickStats = [
   {
     label: "Darbuotojo registracija",
@@ -33,7 +43,13 @@ const subsystemLinks = [
   { href: "/login", label: "Prisijungimas" },
 ];
 
-function renderView(activeView: AdminView) {
+function renderView(
+  activeView: AdminView,
+  organRegistrationOpening: OrganRegistrationWindowOpening | null,
+  organRegistrationOpeningSequence: number,
+  organRegistrationOpeningError: string,
+  isOrganRegistrationOpening: boolean
+) {
   if (activeView === "employees") {
     return <EmployeeListWindow />;
   }
@@ -43,7 +59,45 @@ function renderView(activeView: AdminView) {
   }
 
   if (activeView === "organRegistration") {
-    return <OrganRegistrationWindow />;
+    if (isOrganRegistrationOpening) {
+      return (
+        <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
+          <p className="text-sm font-semibold tracking-[0.2em] text-accent uppercase">
+            Organai
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
+            Organo registracija
+          </h2>
+          <p className="mt-4 text-base leading-7 text-foreground/72">
+            Atidaromas organo registracijos langas...
+          </p>
+        </section>
+      );
+    }
+
+    if (organRegistrationOpeningError || !organRegistrationOpening) {
+      return (
+        <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
+          <p className="text-sm font-semibold tracking-[0.2em] text-accent uppercase">
+            Organai
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
+            Organo registracija
+          </h2>
+          <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {organRegistrationOpeningError ||
+              "Nepavyko atidaryti organo registracijos lango."}
+          </p>
+        </section>
+      );
+    }
+
+    return (
+      <OrganRegistrationWindow
+        opening={organRegistrationOpening}
+        openingSequence={organRegistrationOpeningSequence}
+      />
+    );
   }
 
   return (
@@ -83,6 +137,14 @@ function renderView(activeView: AdminView) {
 
 export default function AdminWindow() {
   const [activeView, setActiveView] = useState<AdminView>("overview");
+  const [organRegistrationOpening, setOrganRegistrationOpening] =
+    useState<OrganRegistrationWindowOpening | null>(null);
+  const [organRegistrationOpeningSequence, setOrganRegistrationOpeningSequence] =
+    useState(0);
+  const [organRegistrationOpeningError, setOrganRegistrationOpeningError] =
+    useState("");
+  const [isOrganRegistrationOpening, setIsOrganRegistrationOpening] =
+    useState(false);
 
   function openEmployeeList(): void {
     setActiveView("employees");
@@ -92,8 +154,41 @@ export default function AdminWindow() {
     setActiveView("operatingRooms");
   }
 
-  function selectOrganRegistration(): void {
+  async function initiateOrganRegistrationWindowOpening(): Promise<void> {
     setActiveView("organRegistration");
+    setIsOrganRegistrationOpening(true);
+    setOrganRegistrationOpeningError("");
+
+    try {
+      const response = await fetch(
+        "/api/admin/OrganRegistrationWindow?action=initiateOrganRegistrationWindowOpening",
+        { cache: "no-store" }
+      );
+      const payload =
+        (await response.json()) as ApiResponse<OrganRegistrationWindowOpening>;
+
+      if (!response.ok || !payload.success || !payload.data) {
+        throw new Error(
+          payload.message ?? "Nepavyko atidaryti organo registracijos lango."
+        );
+      }
+
+      setOrganRegistrationOpening(payload.data);
+      setOrganRegistrationOpeningSequence((current) => current + 1);
+    } catch (openingError) {
+      setOrganRegistrationOpening(null);
+      setOrganRegistrationOpeningError(
+        openingError instanceof Error
+          ? openingError.message
+          : "Nepavyko atidaryti organo registracijos lango."
+      );
+    } finally {
+      setIsOrganRegistrationOpening(false);
+    }
+  }
+
+  function selectOrganRegistration(): void {
+    void initiateOrganRegistrationWindowOpening();
   }
 
   return (
@@ -138,9 +233,12 @@ export default function AdminWindow() {
             <button
               type="button"
               onClick={() => selectOrganRegistration()}
-              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
+              disabled={isOrganRegistrationOpening}
+              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3
+               text-left text-sm font-medium transition hover:border-accent/30 hover:
+               bg-white disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Užregistruoti organą
+              Uzregistruoti organa
             </button>
           </div>
 
@@ -160,7 +258,15 @@ export default function AdminWindow() {
           </div>
         </aside>
 
-        <section>{renderView(activeView)}</section>
+        <section>
+          {renderView(
+            activeView,
+            organRegistrationOpening,
+            organRegistrationOpeningSequence,
+            organRegistrationOpeningError,
+            isOrganRegistrationOpening
+          )}
+        </section>
       </div>
     </main>
   );
