@@ -7,6 +7,10 @@ import type {
   OperatingRoomFormData,
   OperatingRoomListItem,
 } from "@/src/Models/OperatingRoom";
+import type {
+  OrganFormData,
+  OrganListItem,
+} from "@/src/Models/Organ";
 import { queryRows, withTransaction } from "@/src/Shared/db/mysql";
 
 interface EmployeeRow extends RowDataPacket {
@@ -124,6 +128,61 @@ export async function createOperatingRoom(
     return {
       nr: result.insertId,
       atliekamosOperacijosTipas: data.atliekamosOperacijosTipas,
+    };
+  });
+}
+
+interface OrganRow extends RowDataPacket {
+  id: number;
+  tipas: OrganListItem["tipas"];
+  kraujoGrupe: OrganListItem["kraujoGrupe"];
+  gavimoData: string;
+  busena: OrganListItem["busena"];
+  donoroAmzius: number;
+}
+
+export async function fetchOrgans(): Promise<OrganListItem[]> {
+  const rows = await queryRows<OrganRow[]>(
+    `SELECT
+        id AS id,
+        tipas AS tipas,
+        kraujo_grupe AS kraujoGrupe,
+        gavimo_data AS gavimoData,
+        busena AS busena,
+        donoro_amzius AS donoroAmzius
+      FROM Organas
+      ORDER BY id DESC`
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    tipas: row.tipas,
+    kraujoGrupe: row.kraujoGrupe,
+    gavimoData: (row.gavimoData as unknown) instanceof Date
+      ? (row.gavimoData as unknown as Date).toISOString().split("T")[0]
+      : String(row.gavimoData).split("T")[0],
+    busena: row.busena,
+    donoroAmzius: row.donoroAmzius,
+  }));
+}
+
+export async function createOrgan(
+  data: OrganFormData
+): Promise<OrganListItem> {
+  return withTransaction(async (connection) => {
+    const [result] = await connection.query<ResultSetHeader>(
+      `INSERT INTO Organas (tipas, kraujo_grupe, gavimo_data, busena, donoro_amzius)
+       VALUES (?, ?, ?, 'laisvas', ?)`,
+      [data.tipas, data.kraujoGrupe, data.gavimoData, data.donoroAmzius]
+    );
+
+    return {
+      id: result.insertId,
+      tipas: data.tipas,
+      kraujoGrupe: data.kraujoGrupe,
+      gavimoData: data.gavimoData,
+      busena: "laisvas",
+      donoroAmzius: data.donoroAmzius,
     };
   });
 }

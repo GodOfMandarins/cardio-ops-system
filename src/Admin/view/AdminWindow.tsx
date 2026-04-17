@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import EmployeeListWindow from "@/src/Admin/view/EmployeeListWindow";
 import OperatingRoomWindow from "@/src/Admin/view/OperatingRoomWindow";
+import OrganRegistrationWindow from "@/src/Admin/view/OrganRegistrationWindow";
 
-type AdminView = "overview" | "employees" | "operatingRooms";
+type AdminView = "overview" | "employees" | "operatingRooms" | "organRegistration";
 
 const quickStats = [
   {
@@ -17,6 +18,11 @@ const quickStats = [
     label: "Operacines pridejimas",
     value: "02",
     hint: "Realizuota su DB issaugojimu",
+  },
+  {
+    label: "Organo registracija",
+    value: "03",
+    hint: "Uzregistruoti gauta organa",
   },
 ];
 
@@ -34,6 +40,10 @@ function renderView(activeView: AdminView) {
 
   if (activeView === "operatingRooms") {
     return <OperatingRoomWindow />;
+  }
+
+  if (activeView === "organRegistration") {
+    return <OrganRegistrationWindow />;
   }
 
   return (
@@ -82,6 +92,10 @@ export default function AdminWindow() {
     setActiveView("operatingRooms");
   }
 
+  function selectOrganRegistration(): void {
+    setActiveView("organRegistration");
+  }
+
   return (
     <main className="mx-auto min-h-screen max-w-7xl px-6 py-8 sm:px-10 lg:px-16">
       <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
@@ -120,6 +134,13 @@ export default function AdminWindow() {
               className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
             >
               Operacines
+            </button>
+            <button
+              type="button"
+              onClick={() => selectOrganRegistration()}
+              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
+            >
+              Užregistruoti organą
             </button>
           </div>
 

@@ -129,7 +129,7 @@ export default function EmployeeListWindow() {
             Darbuotojai
           </p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
-            Darbuotoku vadyba
+            Darbuotoju vadyba
           </h2>
           <p className="mt-4 text-base leading-7 text-foreground/72">
             Čia galite matyti ir pridėti naujus darbuotojus.
@@ -149,7 +149,7 @@ export default function EmployeeListWindow() {
         <div className="flex items-center justify-between gap-4 mb-5">
           <div>
             <p className="text-sm font-semibold tracking-[0.18em] text-accent uppercase">
-              Darbuotoku sarasas
+              Darbuotoju sarasas
             </p>
             <h3 className="mt-2 text-2xl font-semibold">Esami darbuotojai</h3>
           </div>
@@ -183,7 +183,7 @@ export default function EmployeeListWindow() {
               ) : employees.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-4 py-8 text-center text-foreground/65">
-                    Darbuotoku sarasas tuscias.
+                    Darbuotoju sarasas tuscias.
                   </td>
                 </tr>
               ) : (
