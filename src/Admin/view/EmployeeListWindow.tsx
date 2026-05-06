@@ -39,7 +39,7 @@ export default function EmployeeListWindow() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/employees", { cache: "no-store" });
+      const response = await fetch("/api/admin/EmployeeListWindow", { cache: "no-store" });
       const payload = (await response.json()) as {
         success: boolean;
         data?: EmployeeListItem[];
@@ -83,7 +83,7 @@ export default function EmployeeListWindow() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/employees", {
+      const response = await fetch("/api/admin/EmployeeListWindow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

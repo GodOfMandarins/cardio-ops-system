@@ -20,6 +20,19 @@ export interface EmployeeListItem {
   patirtiesMetai: number;
 }
 
+export interface DoctorPatientsListItem {
+  patientCode: string;
+}
+
+export async function getDoctorPatientsList(
+  gydytojas: string
+): Promise<DoctorPatientsListItem[]> {
+  const { fetchDoctorPatientCodes } = await import(
+    "@/src/Shared/repositories/TestRepository"
+  );
+  return fetchDoctorPatientCodes(gydytojas);
+}
+
 // Saugoja naują darbuotoją į duomenų bazę
 export async function submitEmployeeData(
   data: EmployeeFormData
