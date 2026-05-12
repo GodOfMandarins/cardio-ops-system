@@ -26,8 +26,8 @@ export async function fetchOperatingRoomsUsage(): Promise<SurgeryRoomUsageItem[]
         op.trukme_min AS trukmeMin,
         op.busena AS busena,
         op.pacientas AS pacientas
-      FROM Operacine o
-      LEFT JOIN Operacija op ON op.operacine_nr = o.nr
+      FROM operacine o
+      LEFT JOIN operacija op ON op.operacine_nr = o.nr
       ORDER BY o.nr ASC, op.data ASC, op.pradzios_laikas ASC, op.id ASC`
   );
 

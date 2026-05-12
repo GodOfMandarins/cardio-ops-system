@@ -38,8 +38,8 @@ export async function fetchEmployees(): Promise<EmployeeListItem[]> {
         n.tel_nr AS telNr,
         d.role AS role,
         d.patirties_metai AS patirtiesMetai
-      FROM Darbuotojas d
-      INNER JOIN Naudotojas n ON n.asmens_kodas = d.asmens_kodas
+      FROM darbuotojas d
+      INNER JOIN naudotojas n ON n.asmens_kodas = d.asmens_kodas
       ORDER BY n.vardas, n.pavarde`
   );
 
@@ -59,7 +59,7 @@ export async function createEmployee(
 ): Promise<EmployeeListItem> {
   return withTransaction(async (connection) => {
     const [existingRows] = await connection.query<RowDataPacket[]>(
-      "SELECT asmens_kodas FROM Naudotojas WHERE asmens_kodas = ? OR elPastas = ? LIMIT 1",
+      "SELECT asmens_kodas FROM naudotojas WHERE asmens_kodas = ? OR elPastas = ? LIMIT 1",
       [data.asmensKodas, data.elPastas]
     );
 
@@ -68,7 +68,7 @@ export async function createEmployee(
     }
 
     await connection.query(
-      `INSERT INTO Naudotojas
+      `INSERT INTO naudotojas
         (asmens_kodas, vardas, pavarde, elPastas, slaptazodis, tel_nr)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [
@@ -82,7 +82,7 @@ export async function createEmployee(
     );
 
     await connection.query(
-      `INSERT INTO Darbuotojas
+      `INSERT INTO darbuotojas
         (asmens_kodas, role, patirties_metai)
        VALUES (?, ?, ?)`,
       [data.asmensKodas, data.role, data.patirtiesMetai]
@@ -105,7 +105,7 @@ export async function fetchOperatingRooms(): Promise<OperatingRoomListItem[]> {
     `SELECT
         nr AS nr,
         atliekamos_operacijos_tipas AS atliekamosOperacijosTipas
-      FROM Operacine
+      FROM operacine
       ORDER BY nr DESC`
   );
 
@@ -120,7 +120,7 @@ export async function createOperatingRoom(
 ): Promise<OperatingRoomListItem> {
   return withTransaction(async (connection) => {
     const [result] = await connection.query<ResultSetHeader>(
-      `INSERT INTO Operacine (atliekamos_operacijos_tipas)
+      `INSERT INTO operacine (atliekamos_operacijos_tipas)
        VALUES (?)`,
       [data.atliekamosOperacijosTipas]
     );
@@ -150,7 +150,7 @@ export async function fetchOrgans(): Promise<OrganListItem[]> {
         gavimo_data AS gavimoData,
         busena AS busena,
         donoro_amzius AS donoroAmzius
-      FROM Organas
+      FROM organas
       ORDER BY id DESC`
   );
 
@@ -171,7 +171,7 @@ export async function createOrgan(
 ): Promise<OrganListItem> {
   return withTransaction(async (connection) => {
     const [result] = await connection.query<ResultSetHeader>(
-      `INSERT INTO Organas (tipas, kraujo_grupe, gavimo_data, busena, donoro_amzius)
+      `INSERT INTO organas (tipas, kraujo_grupe, gavimo_data, busena, donoro_amzius)
        VALUES (?, ?, ?, 'laisvas', ?)`,
       [data.tipas, data.kraujoGrupe, data.gavimoData, data.donoroAmzius]
     );

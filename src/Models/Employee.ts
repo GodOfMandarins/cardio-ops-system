@@ -24,6 +24,26 @@ export interface DoctorPatientsListItem {
   patientCode: string;
 }
 
+export interface DoctorListItem {
+  asmensKodas: string;
+  vardas: string;
+  pavarde: string;
+  elPastas: string;
+  telNr: string | null;
+  patirtiesMetai: number;
+}
+
+export interface RecommendedDoctorListItem extends DoctorListItem {
+  rodiklis: number;
+  operacijuSkaicius: number;
+  atlikoNorimoTipoOperacija: boolean;
+}
+
+interface SurgeryTypeResult {
+  operacijosTipas: string;
+  gydytojasId: string;
+}
+
 export async function getDoctorPatientsList(
   gydytojas: string
 ): Promise<DoctorPatientsListItem[]> {
@@ -34,6 +54,24 @@ export async function getDoctorPatientsList(
 }
 
 // Saugoja naują darbuotoją į duomenų bazę
+export function TakeAllDoctors(doctors: DoctorListItem[]): DoctorListItem[] {
+  return doctors;
+}
+
+export function PickDoctorsBySurgeryType(
+  surgeryType: string,
+  doctors: DoctorListItem[],
+  surgeryResults: SurgeryTypeResult[]
+): DoctorListItem[] {
+  const doctorIds = new Set(
+    surgeryResults
+      .filter((result) => result.operacijosTipas === surgeryType)
+      .map((result) => result.gydytojasId)
+  );
+
+  return doctors.filter((doctor) => doctorIds.has(doctor.asmensKodas));
+}
+
 export async function submitEmployeeData(
   data: EmployeeFormData
 ): Promise<EmployeeListItem> {

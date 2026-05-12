@@ -6,7 +6,11 @@ import EmployeeListWindow from "@/src/Admin/view/EmployeeListWindow";
 import OperatingRoomWindow from "@/src/Admin/view/OperatingRoomWindow";
 import OrganRegistrationWindow from "@/src/Admin/view/OrganRegistrationWindow";
 
-type AdminView = "overview" | "employees" | "operatingRooms" | "organRegistration";
+type AdminView =
+  | "overview"
+  | "employees"
+  | "operatingRooms"
+  | "organRegistration";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -240,6 +244,12 @@ export default function AdminWindow() {
             >
               Uzregistruoti organa
             </button>
+            <Link
+              href="/admin/doctor-coordination-test"
+              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
+            >
+              Suderinti gydytojus (test)
+            </Link>
           </div>
 
           <div className="mt-6 rounded-[1.6rem] border border-border-soft bg-white/70 p-5">

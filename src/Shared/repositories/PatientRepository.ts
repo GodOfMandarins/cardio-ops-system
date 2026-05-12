@@ -28,8 +28,8 @@ export async function fetchPatientsByCodes(
         p.ugis_cm AS ugisCm,
         p.svoris_kg AS svorisKg,
         p.amzius AS amzius
-      FROM Pacientas p
-      INNER JOIN Naudotojas n ON n.asmens_kodas = p.asmens_kodas
+      FROM pacientas p
+      INNER JOIN naudotojas n ON n.asmens_kodas = p.asmens_kodas
       WHERE p.asmens_kodas IN (?)
       ORDER BY n.vardas, n.pavarde`,
     [patientCodes]

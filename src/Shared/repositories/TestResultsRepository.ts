@@ -44,10 +44,10 @@ export async function fetchExaminationResults(
         n.vardas AS pacientoVardas,
         n.pavarde AS pacientoPavarde,
         l.pavadinimas AS laboratorija
-      FROM Tyrimo_rezultatai tr
-      INNER JOIN Tyrimas t ON t.id = tr.tyrimas_id
-      INNER JOIN Naudotojas n ON n.asmens_kodas = t.pacientas
-      INNER JOIN Laboratorija l ON l.id = tr.laboratorija_id
+      FROM tyrimo_rezultatai tr
+      INNER JOIN tyrimas t ON t.id = tr.tyrimas_id
+      INNER JOIN naudotojas n ON n.asmens_kodas = t.pacientas
+      INNER JOIN laboratorija l ON l.id = tr.laboratorija_id
       ${patientCode ? "WHERE t.pacientas = ?" : ""}
       ORDER BY tr.data DESC, tr.id DESC`
     ,
@@ -73,7 +73,7 @@ export async function fetchExaminationResults(
 
 export async function getRandomLaboratoryId(): Promise<number> {
   const rows = await queryRows<LaboratoryRow[]>(
-    "SELECT id FROM Laboratorija ORDER BY RAND() LIMIT 1"
+    "SELECT id FROM laboratorija ORDER BY RAND() LIMIT 1"
   );
 
   if (rows[0]) {
@@ -82,7 +82,7 @@ export async function getRandomLaboratoryId(): Promise<number> {
 
   return withTransaction(async (connection) => {
     const [result] = await connection.query<ResultSetHeader>(
-      `INSERT INTO Laboratorija (pavadinimas, adresas)
+      `INSERT INTO laboratorija (pavadinimas, adresas)
        VALUES ('Demo laboratorija', 'Demo adresas')`
     );
 
@@ -95,7 +95,7 @@ export async function createTestResults(
 ): Promise<TestResultsListItem> {
   return withTransaction(async (connection) => {
     const [result] = await connection.query<ResultSetHeader>(
-      `INSERT INTO Tyrimo_rezultatai
+      `INSERT INTO tyrimo_rezultatai
         (rodiklis, rodiklis_min, rodiklis_max, vertinimas, data, tyrimas_id, laboratorija_id)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [

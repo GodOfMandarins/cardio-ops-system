@@ -22,7 +22,7 @@ export async function fetchDoctorPatientCodes(
 ): Promise<DoctorPatientsListItem[]> {
   const rows = await queryRows<DoctorPatientCodeRow[]>(
     `SELECT DISTINCT pacientas AS patientCode
-      FROM Vizitas
+      FROM vizitas
       WHERE gydytojas = ?
       ORDER BY pacientas`,
     [gydytojas]
@@ -39,9 +39,9 @@ export async function fetchDoctorPatients(
         n.asmens_kodas AS asmensKodas,
         n.vardas AS vardas,
         n.pavarde AS pavarde
-      FROM Vizitas v
-      INNER JOIN Pacientas p ON p.asmens_kodas = v.pacientas
-      INNER JOIN Naudotojas n ON n.asmens_kodas = p.asmens_kodas
+      FROM vizitas v
+      INNER JOIN pacientas p ON p.asmens_kodas = v.pacientas
+      INNER JOIN naudotojas n ON n.asmens_kodas = p.asmens_kodas
       WHERE v.gydytojas = ?
       ORDER BY n.vardas, n.pavarde`,
     [gydytojas]
@@ -59,7 +59,7 @@ export async function createExamination(
 ): Promise<ExaminationListItem> {
   return withTransaction(async (connection) => {
     const [result] = await connection.query<ResultSetHeader>(
-      `INSERT INTO Tyrimas (tipas, data, kabinetas, busena, pacientas)
+      `INSERT INTO tyrimas (tipas, data, kabinetas, busena, pacientas)
        VALUES (?, ?, ?, 'užregistruotas', ?)`,
       [data.tipas, data.data, data.kabinetas, data.pacientas]
     );
