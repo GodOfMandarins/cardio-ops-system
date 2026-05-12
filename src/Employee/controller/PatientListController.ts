@@ -1,4 +1,4 @@
-import { getDoctorPatientsList } from "@/src/Models/Employee";
+import { fetchDoctorPatientCodes as getDoctorPatientsList } from "@/src/Shared/repositories/TestRepository";
 import { getDoctorPatients } from "@/src/Models/Patient";
 import type { PatientListItem } from "@/src/Models/Patient";
 

@@ -44,25 +44,18 @@ interface SurgeryTypeResult {
   gydytojasId: string;
 }
 
-export async function getDoctorPatientsList(
-  gydytojas: string
-): Promise<DoctorPatientsListItem[]> {
-  const { fetchDoctorPatientCodes } = await import(
-    "@/src/Shared/repositories/TestRepository"
-  );
-  return fetchDoctorPatientCodes(gydytojas);
-}
-
-// Saugoja naują darbuotoją į duomenų bazę
-export function TakeAllDoctors(doctors: DoctorListItem[]): DoctorListItem[] {
-  return doctors;
-}
-
+// 4. PickDoctorsBySurgeryType(Type) — filtruoja pagal operacijos tipą.
+// Kai surgeryType tuščias, grąžina visus gydytojus su bet kokia operacine patirtimi (12 žingsnis).
 export function PickDoctorsBySurgeryType(
   surgeryType: string,
   doctors: DoctorListItem[],
   surgeryResults: SurgeryTypeResult[]
 ): DoctorListItem[] {
+  if (!surgeryType) {
+    const doctorIds = new Set(surgeryResults.map((r) => r.gydytojasId));
+    return doctors.filter((doctor) => doctorIds.has(doctor.asmensKodas));
+  }
+
   const doctorIds = new Set(
     surgeryResults
       .filter((result) => result.operacijosTipas === surgeryType)
@@ -72,11 +65,3 @@ export function PickDoctorsBySurgeryType(
   return doctors.filter((doctor) => doctorIds.has(doctor.asmensKodas));
 }
 
-export async function submitEmployeeData(
-  data: EmployeeFormData
-): Promise<EmployeeListItem> {
-  const { createEmployee } = await import(
-    "@/src/Shared/repositories/AdminRepository"
-  );
-  return createEmployee(data);
-}

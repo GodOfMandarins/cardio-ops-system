@@ -1,7 +1,5 @@
-import {
-  getSurgeries as modelGetSurgeries,
-  type SurgeryListItem,
-} from "@/src/Models/Surgery";
+import type { SurgeryListItem } from "@/src/Models/Surgery";
+import { fetchSurgeries as modelGetSurgeries } from "@/src/Shared/repositories/SurgeryRepository";
 
 export interface TimeTableWindowOpening {
   openWindow: true;

@@ -1,8 +1,8 @@
+import type { EmployeeFormData } from "@/src/Models/Employee";
 import {
-  type EmployeeFormData,
-  submitEmployeeData as modelSubmitEmployeeData,
-} from "@/src/Models/Employee";
-import { fetchEmployees } from "@/src/Shared/repositories/AdminRepository";
+  fetchEmployees,
+  createEmployee as modelSubmitEmployeeData,
+} from "@/src/Shared/repositories/AdminRepository";
 
 export async function initiateEmployeeFormOpening() {
   return fetchEmployees();
