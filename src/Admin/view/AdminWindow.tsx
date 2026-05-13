@@ -5,12 +5,14 @@ import { useState } from "react";
 import EmployeeListWindow from "@/src/Admin/view/EmployeeListWindow";
 import OperatingRoomWindow from "@/src/Admin/view/OperatingRoomWindow";
 import OrganRegistrationWindow from "@/src/Admin/view/OrganRegistrationWindow";
+import SurgeryListWindow from "@/src/Admin/view/SurgeryListWindow";
 
 type AdminView =
   | "overview"
   | "employees"
   | "operatingRooms"
-  | "organRegistration";
+  | "organRegistration"
+  | "surgeries";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -60,6 +62,10 @@ function renderView(
 
   if (activeView === "operatingRooms") {
     return <OperatingRoomWindow />;
+  }
+
+  if (activeView === "surgeries") {
+    return <SurgeryListWindow />;
   }
 
   if (activeView === "organRegistration") {
@@ -233,6 +239,13 @@ export default function AdminWindow() {
               className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
             >
               Operacines
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView("surgeries")}
+              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white"
+            >
+              Operacijos
             </button>
             <button
               type="button"
