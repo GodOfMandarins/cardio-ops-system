@@ -39,6 +39,15 @@ export interface RecommendedDoctorListItem extends DoctorListItem {
   atlikoNorimoTipoOperacija: boolean;
 }
 
+export async function getDoctorPatientsList(
+  gydytojas: string
+): Promise<DoctorPatientsListItem[]> {
+  const { fetchDoctorPatientCodes } = await import(
+    "@/src/Shared/repositories/TestRepository"
+  );
+  return fetchDoctorPatientCodes(gydytojas);
+}
+
 interface SurgeryTypeResult {
   operacijosTipas: string;
   gydytojasId: string;

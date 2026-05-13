@@ -4,7 +4,7 @@ import {
   submitExaminationData,
 } from "@/src/Employee/controller/ExaminationListController";
 import {
-  getDoctorPatientsData,
+  getDoctorPatients,
   initiateWindowOpening,
 } from "@/src/Employee/controller/PatientListController";
 
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     }
 
     if (action === "getDoctorPatients") {
-      const result = await getDoctorPatientsData(gydytojas);
+      const result = await getDoctorPatients(gydytojas);
       return NextResponse.json({ success: true, data: result });
     }
 

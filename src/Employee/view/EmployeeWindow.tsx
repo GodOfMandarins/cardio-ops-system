@@ -49,12 +49,6 @@ const overviewActions = [
     description: "Gydytojo pacientai pagal vizitu irasus.",
   },
   {
-    key: "transplantationRegistration",
-    view: "patients",
-    title: "Kurti transplantacija",
-    description: "Pasirinkite pacienta transplantacijos registravimui.",
-  },
-  {
     key: "transplantations",
     view: "transplantations",
     title: "Atnaujinti transplantacija",
