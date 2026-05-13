@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { RecommendDoctorByStatistics } from "@/src/Admin/controller/SurgeryListController";
+import { RecommendDoctorByStatistics } from "@/src/Admin/controller/DoctorRecommendationController";
 import type {
   EmployeeListItem,
   RecommendedDoctorListItem,

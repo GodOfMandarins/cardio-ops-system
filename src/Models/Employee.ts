@@ -65,3 +65,56 @@ export function PickDoctorsBySurgeryType(
   return doctors.filter((doctor) => doctorIds.has(doctor.asmensKodas));
 }
 
+function toDateTime(date: string, time: string): Date {
+  return new Date(`${date}T${time}`);
+}
+
+function addMinutes(date: Date, minutes: number): Date {
+  return new Date(date.getTime() + minutes * 60 * 1000);
+}
+
+function overlaps(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
+  return startA < endB && endA > startB;
+}
+
+export class EmployeeService {
+  static toDateTime(date: string, time: string): Date {
+    return toDateTime(date, time);
+  }
+
+  static addMinutes(date: Date, minutes: number): Date {
+    return addMinutes(date, minutes);
+  }
+
+  static overlaps(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
+    return overlaps(startA, endA, startB, endB);
+  }
+
+  static getDoctorsBySurgeries(
+    context: import("@/src/Models/Surgery").PossibleTimeContext,
+    start: Date,
+    end: Date,
+    ignoredSurgeryId: number | null
+  ): DoctorListItem[] {
+    const busySurgeryIds = context.surgeries
+      .filter(
+        (surgery) =>
+          surgery.id !== ignoredSurgeryId &&
+          overlaps(
+            toDateTime(surgery.data, surgery.pradziosLaikas),
+            addMinutes(toDateTime(surgery.data, surgery.pradziosLaikas), surgery.trukmeMin),
+            start,
+            end
+          )
+      )
+      .map((surgery) => surgery.id);
+    const busyIds = new Set(
+      context.doctorAssignments
+        .filter((assignment) => busySurgeryIds.includes(assignment.operacijaId))
+        .map((assignment) => assignment.gydytojasId)
+    );
+
+    return context.doctors.filter((doctor) => !busyIds.has(doctor.asmensKodas));
+  }
+}
+

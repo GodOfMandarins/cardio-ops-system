@@ -1,60 +1,36 @@
 import { NextResponse } from "next/server";
-import { fetchSurgeries, fetchSurgeryById } from "@/src/Shared/repositories/SurgeryRepository";
 import {
-  initiateFormOpening,
-  submitEditedSurgery,
-} from "@/src/Admin/controller/SurgeryEditController";
-import { initiateRemovalYes } from "@/src/Admin/controller/SurgeryListController";
+  initiateSurgeryFormOpening,
+  saveSurgery,
+  submitExaminationData,
+} from "@/src/Admin/controller/SurgeryListController";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const action = searchParams.get("action") ?? "getSurgeries";
-
-    if (action === "initiateFormOpening") {
-      const id = Number(searchParams.get("id"));
-      const surgery = await fetchSurgeryById(id);
-      if (!surgery) {
-        return NextResponse.json(
-          { success: false, message: "Operacija nerasta." },
-          { status: 404 }
-        );
-      }
-      const result = initiateFormOpening(surgery);
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    const surgeries = await fetchSurgeries();
-    return NextResponse.json({ success: true, data: surgeries });
+    const opening = initiateSurgeryFormOpening();
+    return NextResponse.json({ success: true, data: opening });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Nepavyko gauti operaciju.";
+      error instanceof Error
+        ? error.message
+        : "Nepavyko atidaryti operacijos įvedimo formos.";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { id: number } & Record<string, unknown>;
-    const { id, ...payload } = body;
-    const result = await submitEditedSurgery(id, payload);
-    return NextResponse.json({ success: true, data: result });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Nepavyko atnaujinti operacijos.";
-    return NextResponse.json({ success: false, message }, { status: 400 });
-  }
-}
+    const payload = await request.json();
+    const action = new URL(request.url).searchParams.get("action");
+    const data =
+      action === "saveSurgery"
+        ? await saveSurgery(payload)
+        : await submitExaminationData(payload);
 
-export async function DELETE(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = Number(searchParams.get("id"));
-    const result = await initiateRemovalYes(id);
-    return NextResponse.json({ success: true, data: result });
+    return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Nepavyko pašalinti operacijos.";
+      error instanceof Error ? error.message : "Nepavyko pridėti operacijos.";
     return NextResponse.json({ success: false, message }, { status: 400 });
   }
 }

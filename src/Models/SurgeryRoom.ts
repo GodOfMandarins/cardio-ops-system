@@ -21,3 +21,13 @@ export async function getOperatingRooms(): Promise<SurgeryRoomUsageItem[]> {
   );
   return fetchOperatingRoomsUsage();
 }
+
+export class SurgeryRoomService {
+  static getSurgeryRoomsBySurgeries(
+    surgeryRooms: SurgeryRoomUsageItem[],
+    surgeries: import("@/src/Models/Surgery").SurgeryListItem[]
+  ): SurgeryRoomUsageItem[] {
+    void surgeries;
+    return surgeryRooms;
+  }
+}

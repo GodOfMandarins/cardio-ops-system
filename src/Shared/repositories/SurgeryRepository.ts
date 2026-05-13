@@ -1,8 +1,10 @@
-import { RowDataPacket } from "mysql2/promise";
+import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import type {
   PlannedSurgeryListItem,
   SurgeryEditFormData,
+  SurgeryDoctorAssignment,
   SurgeryListItem,
+  SurgerySubmissionData,
 } from "@/src/Models/Surgery";
 import { queryRows, withTransaction } from "@/src/Shared/db/mysql";
 
@@ -21,6 +23,11 @@ interface SurgeryRow extends RowDataPacket {
 
 interface PlannedSurgeryRow extends SurgeryRow {
   gydytojuSkaicius: number;
+}
+
+interface SurgeryDoctorAssignmentRow extends RowDataPacket {
+  operacijaId: number;
+  gydytojasId: string;
 }
 
 function mapSurgery(row: SurgeryRow): SurgeryListItem {
@@ -149,5 +156,111 @@ export async function updateSurgery(
 export async function removeSurgery(id: number): Promise<void> {
   await withTransaction(async (connection) => {
     await connection.query(`DELETE FROM operacija WHERE id = ?`, [id]);
+  });
+}
+
+export async function fetchSurgeryDoctorAssignments(): Promise<
+  SurgeryDoctorAssignment[]
+> {
+  const rows = await queryRows<SurgeryDoctorAssignmentRow[]>(
+    `SELECT
+        operacija_id AS operacijaId,
+        gydytojas_id AS gydytojasId
+      FROM operacija_gydytojas`
+  );
+
+  return rows.map((row) => ({
+    operacijaId: row.operacijaId,
+    gydytojasId: row.gydytojasId,
+  }));
+}
+
+export async function saveSurgery(
+  data: SurgerySubmissionData
+): Promise<SurgeryListItem> {
+  return withTransaction(async (connection) => {
+    if (data.perkeliamaOperacijaId) {
+      await connection.query(
+        `UPDATE operacija
+         SET tipas = ?,
+             prioritetas = ?,
+             data = ?,
+             pradzios_laikas = ?,
+             trukme_min = ?,
+             sudetingumas = ?,
+             pacientas = ?,
+             operacine_nr = ?
+         WHERE id = ?`,
+        [
+          data.tipas,
+          data.prioritetas,
+          data.selectedTime.data,
+          data.selectedTime.pradziosLaikas,
+          data.trukmeMin,
+          data.sudetingumas,
+          data.pacientas,
+          data.selectedTime.operacineNr,
+          data.perkeliamaOperacijaId,
+        ]
+      );
+
+      await connection.query(
+        "DELETE FROM operacija_gydytojas WHERE operacija_id = ?",
+        [data.perkeliamaOperacijaId]
+      );
+      await connection.query(
+        `INSERT INTO operacija_gydytojas (operacija_id, gydytojas_id)
+         VALUES (?, ?)`,
+        [data.perkeliamaOperacijaId, data.gydytojasId]
+      );
+
+      return {
+        id: data.perkeliamaOperacijaId,
+        tipas: data.tipas,
+        prioritetas: data.prioritetas,
+        data: data.selectedTime.data,
+        pradziosLaikas: data.selectedTime.pradziosLaikas,
+        trukmeMin: data.trukmeMin,
+        busena: "užregistruotas",
+        sudetingumas: data.sudetingumas,
+        pacientas: data.pacientas,
+        operacineNr: data.selectedTime.operacineNr,
+      };
+    }
+
+    const [result] = await connection.query<ResultSetHeader>(
+      `INSERT INTO operacija
+        (tipas, prioritetas, data, pradzios_laikas, trukme_min, busena, sudetingumas, pacientas, operacine_nr)
+       VALUES (?, ?, ?, ?, ?, 'užregistruotas', ?, ?, ?)`,
+      [
+        data.tipas,
+        data.prioritetas,
+        data.selectedTime.data,
+        data.selectedTime.pradziosLaikas,
+        data.trukmeMin,
+        data.sudetingumas,
+        data.pacientas,
+        data.selectedTime.operacineNr,
+      ]
+    );
+
+    await connection.query(
+      `INSERT INTO operacija_gydytojas (operacija_id, gydytojas_id)
+       VALUES (?, ?)`,
+      [result.insertId, data.gydytojasId]
+    );
+
+    return {
+      id: result.insertId,
+      tipas: data.tipas,
+      prioritetas: data.prioritetas,
+      data: data.selectedTime.data,
+      pradziosLaikas: data.selectedTime.pradziosLaikas,
+      trukmeMin: data.trukmeMin,
+      busena: "užregistruotas",
+      sudetingumas: data.sudetingumas,
+      pacientas: data.pacientas,
+      operacineNr: data.selectedTime.operacineNr,
+    };
   });
 }
