@@ -7,6 +7,10 @@ import PatientListWindow from "@/src/Employee/view/PatientListWindow";
 import SurgeryRoomWindow from "@/src/Employee/view/SurgeryRoomWindow";
 import TimeTableWindow from "@/src/Employee/view/TimeTableWindow";
 import TransplantationRegistrationWindow from "@/src/Employee/view/TransplantationRegistrationWindow";
+import TransplantationUpdateWindow from "@/src/Employee/view/TransplantationUpdateWindow";
+import TransplantationWindow, {
+  type TransplantationUpdateWindowOpening,
+} from "@/src/Employee/view/TransplantationWindow";
 import type { PatientListItem } from "@/src/Models/Patient";
 import type { TransplantationRegistrationFormData } from "@/src/Models/Transplantation";
 
@@ -16,7 +20,9 @@ type EmployeeView =
   | "results"
   | "timeTable"
   | "rooms"
-  | "transplantationRegistration";
+  | "transplantations"
+  | "transplantationRegistration"
+  | "transplantationUpdate";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -49,6 +55,12 @@ const overviewActions = [
     description: "Pasirinkite pacienta transplantacijos registravimui.",
   },
   {
+    key: "transplantations",
+    view: "transplantations",
+    title: "Atnaujinti transplantacija",
+    description: "Pasirinkite transplantacija duomenu atnaujinimui.",
+  },
+  {
     key: "timeTable",
     view: "timeTable",
     title: "Perziureti operaciju grafika",
@@ -75,6 +87,8 @@ export default function EmployeeWindow() {
     setTransplantationRegistrationForm,
   ] = useState<TransplantationRegistrationFormData>();
   const [selectedPatient, setSelectedPatient] = useState<PatientListItem>();
+  const [transplantationUpdateOpening, setTransplantationUpdateOpening] =
+    useState<TransplantationUpdateWindowOpening>();
 
   function openWindow(view: EmployeeView): void {
     setActiveView(view);
@@ -126,6 +140,17 @@ export default function EmployeeWindow() {
       return <ExaminationResultListWindow patientCode={selectedPatientCode} />;
     }
 
+    if (activeView === "transplantations") {
+      return (
+        <TransplantationWindow
+          onOpenTransplantationUpdate={(opening) => {
+            setTransplantationUpdateOpening(opening);
+            openWindow("transplantationUpdate");
+          }}
+        />
+      );
+    }
+
     if (activeView === "timeTable") {
       return <TimeTableWindow />;
     }
@@ -141,6 +166,12 @@ export default function EmployeeWindow() {
           patient={selectedPatient}
           onCancelRegistration={() => openWindow("patients")}
         />
+      ) : null;
+    }
+
+    if (activeView === "transplantationUpdate") {
+      return transplantationUpdateOpening ? (
+        <TransplantationUpdateWindow opening={transplantationUpdateOpening} />
       ) : null;
     }
 

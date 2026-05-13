@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import type { OrganFormData, OrganListItem } from "@/src/Models/Organ";
 
-const ORGAN_TYPES = ["sirdis"] as const;
+const ORGAN_TYPES = ["širdis"] as const;
 const BLOOD_TYPES = ["0", "A", "B", "AB"] as const;
 
 interface OrganRegistrationWindowOpening {
@@ -199,7 +199,7 @@ export default function OrganRegistrationWindow({
                 Organo tipas
               </label>
               <select
-                value={formData?.tipas ?? "sirdis"}
+                value={formData?.tipas ?? "širdis"}
                 onChange={(event) =>
                   updateFormData({
                     tipas: event.target.value as OrganFormData["tipas"],
@@ -355,7 +355,7 @@ F
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           organ.busena === "laisvas"
                             ? "bg-emerald-50 text-emerald-700"
-                            : organ.busena === "rezervuota"
+                            : organ.busena === "rezervuotas"
                               ? "bg-amber-50 text-amber-700"
                               : organ.busena === "laukiama"
                                 ? "bg-sky-50 text-sky-700"

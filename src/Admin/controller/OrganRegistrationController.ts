@@ -5,7 +5,7 @@ import {
 import type { OrganListItem } from "@/src/Models/Organ";
 import { fetchOrgans } from "@/src/Shared/repositories/AdminRepository";
 
-const ALLOWED_TYPES = new Set<OrganFormData["tipas"]>(["sirdis"]);
+const ALLOWED_TYPES = new Set<OrganFormData["tipas"]>(["širdis"]);
 const ALLOWED_BLOOD_TYPES = new Set<OrganFormData["kraujoGrupe"]>(["0", "A", "B", "AB"]);
 
 export interface OrganRegistrationWindowOpening {
@@ -27,7 +27,7 @@ export function showOrganRegistrationWindow(): OrganRegistrationWindowOpening {
 
 export function requestOrganRegistrationForm(): OrganFormData {
   return {
-    tipas: "sirdis",
+    tipas: "širdis",
     kraujoGrupe: "0",
     gavimoData: new Date().toISOString().split("T")[0],
     donoroAmzius: 0,

@@ -1,6 +1,6 @@
-export type OrganType = "sirdis";
+export type OrganType = "širdis";
 export type BloodType = "0" | "A" | "B" | "AB";
-export type OrganStatus = "laisvas" | "ivyko" | "laukiama" | "rezervuota";
+export type OrganStatus = "laisvas" | "rezervuotas";
 
 export interface OrganFormData {
   tipas: OrganType;
@@ -25,4 +25,11 @@ export async function saveOrganData(
     "@/src/Shared/repositories/AdminRepository"
   );
   return createOrgan(data);
+}
+
+export async function releaseOrgan(organasId: number): Promise<"organReleased"> {
+  const { releaseOrgan: releaseOrganRepository } = await import(
+    "@/src/Shared/repositories/TransplantationRepository"
+  );
+  return releaseOrganRepository(organasId);
 }
