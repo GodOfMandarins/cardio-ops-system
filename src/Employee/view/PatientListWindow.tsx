@@ -45,10 +45,12 @@ const initialForm: ExaminationFormData = {
 
 interface PatientListWindowProps {
   onOpenExaminationResults: (patientCode: string) => void;
+  onOpenTransplantationRegistration: (patient: PatientListItem) => void;
 }
 
 export default function PatientListWindow({
   onOpenExaminationResults,
+  onOpenTransplantationRegistration,
 }: PatientListWindowProps) {
   const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [doctorPatients, setDoctorPatients] = useState<DoctorPatientListItem[]>(
@@ -263,9 +265,10 @@ export default function PatientListWindow({
                       </button>
                       <button
                         type="button"
-                        disabled
-                        title="Funkcija nerealizuojama pagal pateiktas seku diagramas."
-                        className="max-w-40 cursor-not-allowed rounded-xl border border-border-soft bg-slate-100 px-3 py-2 text-xs font-semibold leading-4 text-foreground/45"
+                        onClick={() =>
+                          onOpenTransplantationRegistration(patient)
+                        }
+                        className="max-w-40 rounded-xl border border-border-soft px-3 py-2 text-xs font-semibold leading-4 transition hover:border-accent/30 hover:bg-background"
                       >
                         Uzregistruoti transplantacijai
                       </button>

@@ -6,8 +6,27 @@ import ExaminationResultListWindow from "@/src/Employee/view/ExaminationResultLi
 import PatientListWindow from "@/src/Employee/view/PatientListWindow";
 import SurgeryRoomWindow from "@/src/Employee/view/SurgeryRoomWindow";
 import TimeTableWindow from "@/src/Employee/view/TimeTableWindow";
+import TransplantationRegistrationWindow from "@/src/Employee/view/TransplantationRegistrationWindow";
+import type { PatientListItem } from "@/src/Models/Patient";
+import type { TransplantationRegistrationFormData } from "@/src/Models/Transplantation";
 
-type EmployeeView = "overview" | "patients" | "results" | "timeTable" | "rooms";
+type EmployeeView =
+  | "overview"
+  | "patients"
+  | "results"
+  | "timeTable"
+  | "rooms"
+  | "transplantationRegistration";
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
+interface TransplantationRegistrationWindowOpening {
+  transplantationRegistrationForm: TransplantationRegistrationFormData;
+}
 
 const navigation = [
   { href: "/", label: "Pradinis" },
@@ -19,27 +38,71 @@ const navigation = [
 const overviewActions = [
   {
     key: "patients",
+    view: "patients",
     title: "Perziureti pacientus",
     description: "Gydytojo pacientai pagal vizitu irasus.",
   },
   {
+    key: "transplantationRegistration",
+    view: "patients",
+    title: "Kurti transplantacija",
+    description: "Pasirinkite pacienta transplantacijos registravimui.",
+  },
+  {
     key: "timeTable",
+    view: "timeTable",
     title: "Perziureti operaciju grafika",
     description: "Operaciju sarasas ir planuojamos datos.",
   },
   {
     key: "rooms",
+    view: "rooms",
     title: "Perziureti operaciniu uzimtuma",
     description: "Operaciniu panaudojimas pagal operaciju irasus.",
   },
-] as const;
+] as const satisfies readonly {
+  key: string;
+  view: EmployeeView;
+  title: string;
+  description: string;
+}[];
 
 export default function EmployeeWindow() {
   const [activeView, setActiveView] = useState<EmployeeView>("overview");
   const [selectedPatientCode, setSelectedPatientCode] = useState<string>();
+  const [
+    transplantationRegistrationForm,
+    setTransplantationRegistrationForm,
+  ] = useState<TransplantationRegistrationFormData>();
+  const [selectedPatient, setSelectedPatient] = useState<PatientListItem>();
 
   function openWindow(view: EmployeeView): void {
     setActiveView(view);
+  }
+
+  async function openTransplantationRegistrationWindow(
+    patientCode: string
+  ): Promise<void> {
+    const response = await fetch(
+      `/api/employee/TransplantationRegistrationWindow?action=initiateTransplantationRegistrationWindowOpening&pacientas=${encodeURIComponent(
+        patientCode
+      )}`,
+      { cache: "no-store" }
+    );
+    const payload =
+      (await response.json()) as ApiResponse<TransplantationRegistrationWindowOpening>;
+
+    if (!response.ok || !payload.success || !payload.data) {
+      throw new Error(
+        payload.message ??
+          "Nepavyko atidaryti transplantacijos registravimo formos."
+      );
+    }
+
+    setTransplantationRegistrationForm(
+      payload.data.transplantationRegistrationForm
+    );
+    openWindow("transplantationRegistration");
   }
 
   function renderView() {
@@ -49,6 +112,11 @@ export default function EmployeeWindow() {
           onOpenExaminationResults={(patientCode) => {
             setSelectedPatientCode(patientCode);
             openWindow("results");
+          }}
+          onOpenTransplantationRegistration={(patient) => {
+            setSelectedPatient(patient);
+            setSelectedPatientCode(patient.asmensKodas);
+            void openTransplantationRegistrationWindow(patient.asmensKodas);
           }}
         />
       );
@@ -64,6 +132,16 @@ export default function EmployeeWindow() {
 
     if (activeView === "rooms") {
       return <SurgeryRoomWindow />;
+    }
+
+    if (activeView === "transplantationRegistration") {
+      return transplantationRegistrationForm ? (
+        <TransplantationRegistrationWindow
+          transplantationRegistrationForm={transplantationRegistrationForm}
+          patient={selectedPatient}
+          onCancelRegistration={() => openWindow("patients")}
+        />
+      ) : null;
     }
 
     return (
@@ -94,7 +172,7 @@ export default function EmployeeWindow() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 lg:grid-cols-4">
           {overviewActions.map((action) => (
             <article
               key={action.key}
@@ -106,7 +184,7 @@ export default function EmployeeWindow() {
               </p>
               <button
                 type="button"
-                onClick={() => openWindow(action.key)}
+                onClick={() => openWindow(action.view)}
                 className="mt-5 w-full rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent-strong"
               >
                 Atidaryti

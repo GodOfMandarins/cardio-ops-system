@@ -16,3 +16,31 @@ export async function getDoctorPatients(
   );
   return fetchPatientsByCodes(patientCodes);
 }
+
+export async function checkIfPatientAlreadyRegistered(
+  pacientas: string
+): Promise<boolean> {
+  const { isPatientInTransplantationWaitingList } = await import(
+    "@/src/Shared/repositories/TransplantationRepository"
+  );
+  return isPatientInTransplantationWaitingList(pacientas);
+}
+
+export async function addPatientToWaitingList(data: {
+  pacientas: string;
+  prioritetas: string;
+}): Promise<"success"> {
+  const { addPatientToTransplantationWaitingList } = await import(
+    "@/src/Shared/repositories/TransplantationRepository"
+  );
+  return addPatientToTransplantationWaitingList(data);
+}
+
+export async function removePatientFromWaitingList(
+  pacientas: string
+): Promise<"success"> {
+  const { removePatientFromTransplantationWaitingList } = await import(
+    "@/src/Shared/repositories/TransplantationRepository"
+  );
+  return removePatientFromTransplantationWaitingList(pacientas);
+}
