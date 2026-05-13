@@ -11,6 +11,7 @@ import {
 import type { DoctorListItem, RecommendedDoctorListItem } from "@/src/Models/Employee";
 import { PickDoctorsBySurgeryType } from "@/src/Models/Employee";
 import type { SurgeryListItem } from "@/src/Models/Surgery";
+import { removeSurgery } from "@/src/Shared/repositories/SurgeryRepository";
 import { CheckSurgeryType } from "@/src/Models/Surgery";
 import {
   GetSurgeryResultsByDoctor,
@@ -109,4 +110,21 @@ export function RecommendDoctorByStatistics(
   const assignedDoctor = doctors[0] ?? null;
 
   return { surgeryType: Type, doctors, assignedDoctor };
+}
+
+export interface SurgeryRemovalSuccess {
+  success: true;
+  message: string;
+}
+
+export function initiateSurgeryRemoval(surgery: SurgeryListItem): { openDialog: true; surgery: SurgeryListItem } {
+  return { openDialog: true, surgery };
+}
+
+export function initiateRemovalNo(): void {
+}
+
+export async function initiateRemovalYes(id: number): Promise<SurgeryRemovalSuccess> {
+  await removeSurgery(id);
+  return { success: true, message: "Operacija sėkmingai pašalinta." };
 }

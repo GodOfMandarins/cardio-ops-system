@@ -4,6 +4,7 @@ import {
   initiateFormOpening,
   submitEditedSurgery,
 } from "@/src/Admin/controller/SurgeryEditController";
+import { initiateRemovalYes } from "@/src/Admin/controller/SurgeryListController";
 
 export async function GET(request: Request) {
   try {
@@ -41,6 +42,19 @@ export async function PUT(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Nepavyko atnaujinti operacijos.";
+    return NextResponse.json({ success: false, message }, { status: 400 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = Number(searchParams.get("id"));
+    const result = await initiateRemovalYes(id);
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Nepavyko pašalinti operacijos.";
     return NextResponse.json({ success: false, message }, { status: 400 });
   }
 }

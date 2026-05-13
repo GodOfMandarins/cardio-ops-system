@@ -55,6 +55,11 @@ export default function SurgeryListWindow() {
   const [submitError, setSubmitError] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [removingSurgery, setRemovingSurgery] = useState<SurgeryListItem | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState("");
+  const [removeMessage, setRemoveMessage] = useState("");
+  const removeDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     void loadSurgeries();
@@ -116,6 +121,51 @@ export default function SurgeryListWindow() {
     value: SurgeryEditFormData[K]
   ) {
     setFormData((current) => (current ? { ...current, [key]: value } : current));
+  }
+
+  // initiateSurgeryRemoval() — administratorius inicijuoja operacijos šalinimą
+  function initiateSurgeryRemoval(surgery: SurgeryListItem) {
+    setRemoveError("");
+    setRemoveMessage("");
+    setRemovingSurgery(surgery);
+    removeDialogRef.current?.showModal();
+  }
+
+  // initiateRemovalNo() — administratorius atsisako šalinimo
+  function initiateRemovalNo() {
+    removeDialogRef.current?.close();
+    setRemovingSurgery(null);
+    setRemoveError("");
+    setRemoveMessage("");
+  }
+
+  // initiateRemovalYes() — administratorius patvirtina šalinimą
+  async function initiateRemovalYes() {
+    if (!removingSurgery) return;
+    setIsRemoving(true);
+    setRemoveError("");
+    setRemoveMessage("");
+    try {
+      const response = await fetch(
+        `/api/admin/SurgeryListWindow?id=${removingSurgery.id}`,
+        { method: "DELETE" }
+      );
+      const payload = (await response.json()) as ApiResponse<{ message: string }>;
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message ?? "Nepavyko pašalinti operacijos.");
+      }
+      setSurgeries((current) => current.filter((s) => s.id !== removingSurgery.id));
+      setRemoveMessage("Operacija sėkmingai pašalinta.");
+      setTimeout(() => {
+        initiateRemovalNo();
+      }, 600);
+    } catch (err) {
+      setRemoveError(
+        err instanceof Error ? err.message : "Nepavyko pašalinti operacijos."
+      );
+    } finally {
+      setIsRemoving(false);
+    }
   }
 
   // 5-6. submitEditedSurgery() — kviečiamas kai administratorius siunčia formą
@@ -233,13 +283,22 @@ export default function SurgeryListWindow() {
                       <td className="px-4 py-4">{surgery.sudetingumas}</td>
                       <td className="px-4 py-4">{surgery.operacineNr}</td>
                       <td className="px-4 py-4">
-                        <button
-                          type="button"
-                          onClick={() => void openSurgeryEditForm(surgery)}
-                          className="rounded-xl border border-border-soft px-3 py-1.5 text-xs font-semibold transition hover:border-accent/40 hover:bg-background"
-                        >
-                          Redaguoti
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void openSurgeryEditForm(surgery)}
+                            className="rounded-xl border border-border-soft px-3 py-1.5 text-xs font-semibold transition hover:border-accent/40 hover:bg-background"
+                          >
+                            Redaguoti
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => initiateSurgeryRemoval(surgery)}
+                            className="rounded-xl border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:border-rose-400 hover:bg-rose-50"
+                          >
+                            Atsaukti
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -405,6 +464,48 @@ export default function SurgeryListWindow() {
               </div>
             </form>
           ) : null}
+        </div>
+      </dialog>
+      <dialog
+        ref={removeDialogRef}
+        className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop:bg-black/50"
+      >
+        <div className="w-full min-w-[320px] max-w-sm">
+          <h3 className="text-xl font-semibold mb-2">Atsaukti operaciją</h3>
+          <p className="mb-6 text-sm text-foreground/60">
+            Ar tikrai norite pašalinti operaciją #{removingSurgery?.id}?
+          </p>
+
+          {removeError ? (
+            <p className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {removeError}
+            </p>
+          ) : null}
+
+          {removeMessage ? (
+            <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {removeMessage}
+            </p>
+          ) : null}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => void initiateRemovalYes()}
+              disabled={isRemoving}
+              className="flex-1 rounded-xl bg-rose-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isRemoving ? "Šalinama..." : "Taip"}
+            </button>
+            <button
+              type="button"
+              onClick={initiateRemovalNo}
+              disabled={isRemoving}
+              className="flex-1 rounded-xl border border-border-soft px-4 py-3 text-base font-semibold transition hover:bg-background/50 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Ne
+            </button>
+          </div>
         </div>
       </dialog>
     </section>

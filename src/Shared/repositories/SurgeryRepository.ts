@@ -145,3 +145,9 @@ export async function updateSurgery(
     );
   });
 }
+
+export async function removeSurgery(id: number): Promise<void> {
+  await withTransaction(async (connection) => {
+    await connection.query(`DELETE FROM operacija WHERE id = ?`, [id]);
+  });
+}
