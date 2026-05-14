@@ -5,19 +5,23 @@ import { FormEvent, useRef, useState } from "react";
 import EmployeeListWindow from "@/src/Admin/view/EmployeeListWindow";
 import OperatingRoomWindow from "@/src/Admin/view/OperatingRoomWindow";
 import OrganRegistrationWindow from "@/src/Admin/view/OrganRegistrationWindow";
+import OperationsResultWindow from "@/src/Admin/view/OperationsResultWindow";
 import type {
+  SurgeryListItem,
   SurgeryFormData,
   SurgeryTimeOption,
   SurgerySubmissionResult,
 } from "@/src/Models/Surgery";
 import type { RecommendedDoctorListItem } from "@/src/Models/Employee";
+import type { SurgeryResultListItem } from "@/src/Models/SurgeryResults";
 
 type AdminView =
   | "overview"
   | "employees"
   | "operatingRooms"
   | "organRegistration"
-  | "surgeries";
+  | "surgeries"
+  | "operationResults";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -31,6 +35,11 @@ interface OrganRegistrationWindowOpening {
 
 interface SurgeryFormOpening {
   showSurgeryForm: true;
+}
+
+interface OperationsResultListOpening {
+  surgeryResults: SurgeryResultListItem[];
+  surgeries: SurgeryListItem[];
 }
 
 const OPERATION_TYPES = [
@@ -171,7 +180,10 @@ function renderView(
   organRegistrationOpening: OrganRegistrationWindowOpening | null,
   organRegistrationOpeningSequence: number,
   organRegistrationOpeningError: string,
-  isOrganRegistrationOpening: boolean
+  isOrganRegistrationOpening: boolean,
+  operationsResultOpening: OperationsResultListOpening | null,
+  operationsResultOpeningError: string,
+  isOperationsResultOpening: boolean
 ) {
   if (activeView === "employees") {
     return <EmployeeListWindow />;
@@ -221,6 +233,43 @@ function renderView(
         openingSequence={organRegistrationOpeningSequence}
       />
     );
+  }
+
+  if (activeView === "operationResults") {
+    if (isOperationsResultOpening) {
+      return (
+        <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
+          <p className="text-sm font-semibold tracking-[0.2em] text-accent uppercase">
+            Operaciju rezultatai
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
+            Operaciju rezultatu sarasas
+          </h2>
+          <p className="mt-4 text-base leading-7 text-foreground/72">
+            Atidaromas operaciju rezultatu sarasas...
+          </p>
+        </section>
+      );
+    }
+
+    if (operationsResultOpeningError || !operationsResultOpening) {
+      return (
+        <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
+          <p className="text-sm font-semibold tracking-[0.2em] text-accent uppercase">
+            Operaciju rezultatai
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
+            Operaciju rezultatu sarasas
+          </h2>
+          <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {operationsResultOpeningError ||
+              "Nepavyko atidaryti operaciju rezultatu saraso."}
+          </p>
+        </section>
+      );
+    }
+
+    return <OperationsResultWindow opening={operationsResultOpening} />;
   }
 
   return (
@@ -286,6 +335,12 @@ export default function AdminWindow() {
     useState("");
   const [isOrganRegistrationOpening, setIsOrganRegistrationOpening] =
     useState(false);
+  const [operationsResultOpening, setOperationsResultOpening] =
+    useState<OperationsResultListOpening | null>(null);
+  const [operationsResultOpeningError, setOperationsResultOpeningError] =
+    useState("");
+  const [isOperationsResultOpening, setIsOperationsResultOpening] =
+    useState(false);
 
   function openEmployeeList(): void {
     setActiveView("employees");
@@ -293,6 +348,38 @@ export default function AdminWindow() {
 
   function openOperatingRoomsList(): void {
     setActiveView("operatingRooms");
+  }
+
+  async function openOperationsResultList(): Promise<void> {
+    setActiveView("operationResults");
+    setIsOperationsResultOpening(true);
+    setOperationsResultOpeningError("");
+
+    try {
+      const response = await fetch(
+        "/api/admin/OperationsResultWindow?action=openOperationsResultList",
+        { cache: "no-store" }
+      );
+      const payload =
+        (await response.json()) as ApiResponse<OperationsResultListOpening>;
+
+      if (!response.ok || !payload.success || !payload.data) {
+        throw new Error(
+          payload.message ?? "Nepavyko atidaryti operaciju rezultatu saraso."
+        );
+      }
+
+      setOperationsResultOpening(payload.data);
+    } catch (openingError) {
+      setOperationsResultOpening(null);
+      setOperationsResultOpeningError(
+        openingError instanceof Error
+          ? openingError.message
+          : "Nepavyko atidaryti operaciju rezultatu saraso."
+      );
+    } finally {
+      setIsOperationsResultOpening(false);
+    }
   }
 
   async function openSurgeryForm(): Promise<void> {
@@ -546,6 +633,14 @@ export default function AdminWindow() {
               >
                 Pridėti operaciją
             </button>
+            <button
+              type="button"
+              onClick={() => void openOperationsResultList()}
+              disabled={isOperationsResultOpening}
+              className="block w-full rounded-2xl border border-border-soft bg-white/75 px-4 py-3 text-left text-sm font-medium transition hover:border-accent/30 hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Operaciju rezultatai
+            </button>
           </div>
 
           <div className="mt-6 rounded-[1.6rem] border border-border-soft bg-white/70 p-5">
@@ -570,7 +665,10 @@ export default function AdminWindow() {
             organRegistrationOpening,
             organRegistrationOpeningSequence,
             organRegistrationOpeningError,
-            isOrganRegistrationOpening
+            isOrganRegistrationOpening,
+            operationsResultOpening,
+            operationsResultOpeningError,
+            isOperationsResultOpening
           )}
         </section>
       </div>

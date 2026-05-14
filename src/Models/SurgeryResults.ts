@@ -1,3 +1,12 @@
+export type SurgeryIndicator = 1 | 2 | 3 | 4 | 5;
+
+export interface SurgeryResultFormData {
+  operacijaId: number;
+  pacientoStabilumas: SurgeryIndicator;
+  komplikacijuSunkumas: SurgeryIndicator;
+  skausmoLygis: SurgeryIndicator;
+}
+
 export interface SurgeryResultListItem {
   id: number;
   pacientoStabilumas: number;
@@ -15,4 +24,20 @@ export function GetSurgeryResultsByDoctor(
   return surgeryResults.filter(
     (surgeryResult) => surgeryResult.gydytojasId === doctorId
   );
+}
+
+export async function getResults(): Promise<SurgeryResultListItem[]> {
+  const { fetchSurgeryResults } = await import(
+    "@/src/Shared/repositories/SurgeryResultsRepository"
+  );
+  return fetchSurgeryResults();
+}
+
+export async function submitOperationsResultData(
+  data: SurgeryResultFormData
+): Promise<SurgeryResultListItem> {
+  const { createSurgeryResult } = await import(
+    "@/src/Shared/repositories/SurgeryResultsRepository"
+  );
+  return createSurgeryResult(data);
 }
