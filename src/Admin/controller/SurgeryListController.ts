@@ -161,16 +161,14 @@ export async function saveSurgery(
     savedSurgery,
     replacedSurgery,
     nextOptions,
-    warning: replacedSurgery
-      ? "Operacija užėmė vietą. Pasirinkite perkėlimo laiką"
-      : null,
+    warning: replacedSurgery ? showWarning() : null,
   };
 }
 
-// Step 3: core scheduling loop, matching the sequence diagram
-//   3.1 search in current priority interval
-//   3.2 if no free slots, search for lower-priority replacement
-//   3.3 if still none, extend interval and repeat
+export function showWarning(): string {
+  return "Operacija užėmė vietą. Pasirinkite perkėlimo laiką";
+}
+
 function findNearestPossibleSurgeryTimes(
   context: PossibleTimeContext
 ): SurgeryTimeOption[] {

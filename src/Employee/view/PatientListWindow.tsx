@@ -186,6 +186,38 @@ export default function PatientListWindow({
     }
   }
 
+  async function handleRefresh(): Promise<void> {
+    setIsLoading(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch(
+        "/api/employee/PatientListWindow?action=submitDueExaminations",
+        { cache: "no-store" }
+      );
+      const payload = (await response.json()) as ApiResponse<{ enqueued: number }>;
+
+      if (!response.ok || !payload.success || !payload.data) {
+        throw new Error(payload.message ?? "Nepavyko patikrinti tyrimu.");
+      }
+
+      const { enqueued } = payload.data;
+      if (enqueued > 0) {
+        setMessage(`Pateikta ${enqueued} tyrimų rezultatų.`);
+      } else {
+        setMessage("Nerasta naujų tyrimų rezultatams pateikti.");
+      }
+
+      // refresh patient list
+      await getDoctorPatients();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Klaida atnaujinant.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <section className="rounded-[2rem] border border-white/70 bg-surface p-6 shadow-[var(--shadow)] backdrop-blur-xl sm:p-8">
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -199,7 +231,7 @@ export default function PatientListWindow({
         </div>
         <button
           type="button"
-          onClick={() => void openWindow()}
+          onClick={() => void handleRefresh()}
           className="rounded-2xl border border-border-soft bg-white/80 px-5 py-3 text-sm font-semibold transition hover:border-accent/30 hover:bg-white"
         >
           Atnaujinti

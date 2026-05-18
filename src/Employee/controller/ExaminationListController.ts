@@ -4,7 +4,6 @@ import {
   type ExaminationFormData,
   type ExaminationListItem,
 } from "@/src/Models/Test";
-import { addExaminationToResultsQueue } from "@/src/Employee/controller/ExaminationResultListController";
 import { fetchDoctorPatients } from "@/src/Shared/repositories/TestRepository";
 
 const DEMO_DOCTOR_ID = "11111111111";
@@ -73,10 +72,9 @@ export async function submitExaminationData(
   validateData(formData, doctorPatients);
 
   const savedExamination = await saveExaminationData(formData);
-  addExaminationToResultsQueue(savedExamination);
 
   return {
     savedExamination,
-    successMessage: "success message",
+    successMessage: "Tyrimas sėkmingai pridėtas",
   };
 }

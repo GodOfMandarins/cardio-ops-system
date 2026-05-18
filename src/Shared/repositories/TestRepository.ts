@@ -71,3 +71,32 @@ export async function createExamination(
     };
   });
 }
+
+interface ExaminationRow extends RowDataPacket {
+  id: number;
+  tipas: string;
+  data: string;
+  kabinetas: number;
+  pacientas: string;
+  busena: string;
+}
+
+export async function fetchDueExaminationsWithoutResults(): Promise<ExaminationListItem[]> {
+  const rows = await queryRows<ExaminationRow[]>(
+    `SELECT t.id, t.tipas, t.data, t.kabinetas, t.pacientas, t.busena
+     FROM tyrimas t
+     LEFT JOIN tyrimo_rezultatai tr ON tr.tyrimas_id = t.id
+     WHERE DATE(t.data) <= CURDATE()
+       AND tr.id IS NULL
+    ORDER BY t.data ASC, t.id ASC`
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    tipas: row.tipas as any,
+    data: String(row.data).split("T")[0],
+    kabinetas: row.kabinetas,
+    pacientas: row.pacientas,
+    busena: row.busena as any,
+  }));
+}

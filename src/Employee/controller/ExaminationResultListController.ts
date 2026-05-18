@@ -3,6 +3,7 @@ import {
   type LaboratoryApiWindowResult,
 } from "@/src/Employee/view/LaboratoryApiWindow";
 import type { ExaminationListItem } from "@/src/Models/Test";
+import { fetchDueExaminationsWithoutResults } from "@/src/Shared/repositories/TestRepository";
 import {
   submitExaminationResultsData,
   getResults as modelGetResults,
@@ -37,9 +38,46 @@ export async function getResults(
 const examinationResultsQueue: ExaminationListItem[] = [];
 let isCheckingExaminations = false;
 
-export function addExaminationToResultsQueue(examination: ExaminationListItem): void {
-  examinationResultsQueue.push(examination);
-  void checkExaminationsQueue();
+function isDateInFuture(dateString: string): boolean {
+  const examDate = new Date(dateString);
+  const today = new Date();
+  examDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  return examDate.getTime() > today.getTime();
+}
+
+export async function submitDueExaminationsNow(): Promise<{ enqueued: number }> {
+  // Manual update flow:
+  // 1) rasti tinkamus pagal datą tyrimus be rezultatų
+  // 2) enque'inti juos tokią tvarka, kokia anksčiau buvo įkelta
+  // 3) apdoroti ir pateikti rezultatus
+  try {
+    const dueExams = await fetchDueExaminationsWithoutResults();
+
+    // Ensure ordering by date (earliest first) and id for determinism
+    dueExams.sort((a, b) => {
+      const da = new Date(a.data).getTime();
+      const db = new Date(b.data).getTime();
+      if (da !== db) return da - db;
+      return a.id - b.id;
+    });
+
+    let enqueued = 0;
+    for (const exam of dueExams) {
+      if (!examinationResultsQueue.find((q) => q.id === exam.id) && !(exam.data && isDateInFuture(exam.data))) {
+        examinationResultsQueue.push(exam);
+        enqueued++;
+      }
+    }
+
+    // Process immediately
+    await checkExaminationsQueue();
+
+    return { enqueued };
+  } catch (err) {
+    console.error("Error submitting due examinations:", err);
+    return { enqueued: 0 };
+  }
 }
 
 export async function checkExaminationsQueue(): Promise<void> {
@@ -69,8 +107,16 @@ export async function checkExaminationsQueue(): Promise<void> {
 export async function submitExaminationResults(
   examination: ExaminationListItem
 ): Promise<ExaminationResultsAddedResult> {
+  if (examination.data && isDateInFuture(examination.data)) {
+    throw new Error(
+      "Negalima pateikti tyrimų rezultatų už ateities datą. Patikrinkite tyrimo datą."
+    );
+  }
+
+  // 1) Gauti tyrimo rezultatus iš laboratorijos
   const { examinationResults } = await windowSubmitExaminationResults(examination);
 
+  // 2) Jei nėra rezultatų, nekurti įrašo ir grįžti
   if (examinationResults.length === 0) {
     return {
       examinationResults,

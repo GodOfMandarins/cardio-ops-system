@@ -7,6 +7,7 @@ import {
   getDoctorPatients,
   initiateWindowOpening,
 } from "@/src/Employee/controller/PatientListController";
+import { submitDueExaminationsNow } from "@/src/Employee/controller/ExaminationResultListController";
 
 export async function GET(request: Request) {
   try {
@@ -26,6 +27,11 @@ export async function GET(request: Request) {
 
     if (action === "initiateFormOpening") {
       const result = await initiateFormOpening(gydytojas);
+      return NextResponse.json({ success: true, data: result });
+    }
+
+    if (action === "submitDueExaminations") {
+      const result = await submitDueExaminationsNow();
       return NextResponse.json({ success: true, data: result });
     }
 

@@ -349,7 +349,6 @@ export default function AdminWindow() {
   function openOperatingRoomsList(): void {
     setActiveView("operatingRooms");
   }
-
   async function openOperationsResultList(): Promise<void> {
     setActiveView("operationResults");
     setIsOperationsResultOpening(true);
@@ -380,6 +379,11 @@ export default function AdminWindow() {
     } finally {
       setIsOperationsResultOpening(false);
     }
+  }
+
+  function showWarning(message: string): void {
+    setSurgeryError("");
+    setSurgeryMessage(message);
   }
 
   async function openSurgeryForm(): Promise<void> {
@@ -449,7 +453,7 @@ export default function AdminWindow() {
 
       setSurgeryTimeOptions(payload.data);
       if (payload.data[0]) chooseSurgeryTime(payload.data[0]);
-      setSurgeryMessage("Pasirinkite vieną iš artimiausių galimų laikų.");
+      showWarning("Pasirinkite vieną iš artimiausių galimų laikų.");
     } catch (submitError) {
       setSurgeryError(
         submitError instanceof Error
@@ -504,9 +508,9 @@ export default function AdminWindow() {
         if (payload.data.nextOptions[0]) {
           chooseSurgeryTime(payload.data.nextOptions[0]);
         }
-        setSurgeryMessage(payload.data.warning);
+        showWarning(payload.data.warning);
       } else {
-        setSurgeryMessage("Operacija sėkmingai pridėta.");
+        showWarning("Operacija sėkmingai pridėta.");
         setTimeout(() => {
           dialogRef.current?.close();
           setSurgeryOpening(null);

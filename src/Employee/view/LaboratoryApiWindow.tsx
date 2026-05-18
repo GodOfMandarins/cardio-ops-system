@@ -49,9 +49,8 @@ export async function submitExaminationResults(
   examination: ExaminationListItem
 ): Promise<LaboratoryApiWindowResult> {
   const laboratoryId = await getRandomLaboratoryId();
-  const examinationResults = [
-    createFakeExaminationResult(examination, laboratoryId),
-  ];
+  const examinationResults = [createFakeExaminationResult(examination, laboratoryId),];
+  //const examinationResults: TestResultsFormData[] = [];
 
   return { examinationResults };
 }
